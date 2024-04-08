@@ -1,7 +1,8 @@
+name: mini_play_party_server
+
 services:
   db:
     image: postgres
-    restart: always
     # set shared memory limit when using docker-compose
     shm_size: 128mb
     environment:
@@ -13,6 +14,5 @@ services:
 
   adminer:
     image: adminer
-    restart: always
     ports:
       - 8080:8080
