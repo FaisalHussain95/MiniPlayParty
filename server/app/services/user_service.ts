@@ -20,3 +20,7 @@ export const updateUser = async (user: User, payload: Infer<typeof updateUserSch
   if (payload.password) user.password = payload.password
   await user.save()
 }
+
+export const deleteUser = async (user: User) => {
+  await user.delete()
+}

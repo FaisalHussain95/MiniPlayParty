@@ -1,7 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { createUserValidator, updateUserValidator } from '#validators/user'
-import { createUser, updateUser } from '#services/user_service'
-import { errors as authErrors } from '@adonisjs/auth'
+import { createUser, updateUser, deleteUser } from '#services/user_service'
 
 export default class UsersController {
   /**
@@ -27,6 +26,7 @@ export default class UsersController {
    */
   async destroy({ auth }: HttpContext) {
     const user = auth.getUserOrFail()
+    await deleteUser(user)
 
     return {
       message: 'User deleted',
