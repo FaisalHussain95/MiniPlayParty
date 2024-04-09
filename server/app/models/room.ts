@@ -12,14 +12,14 @@ export default class Room extends BaseModel {
   declare name: string
 
   @column()
-  declare avatar: string
+  declare avatar: string | null
 
   @manyToMany(() => User, {
     pivotTable: 'room_user',
     pivotColumns: ['admin'],
     onQuery: (query) => {
       if (query.isRelatedPreloadQuery) {
-        query.select('id', 'displayName', 'avatar')
+        query.select('id', 'name', 'avatar', 'username')
       }
     },
   })

@@ -1,7 +1,7 @@
 import { test } from '@japa/runner'
 import User from '#models/user'
 
-test.group('User Test suite', () => {
+test.group('User Test Suite', () => {
   test('Invalid username', async ({ client }) => {
     const response = await client.post('/auth/register').json({
       username: 'Test User+',
@@ -20,7 +20,7 @@ test.group('User Test suite', () => {
 
     response.assertStatus(422)
   })
-  test('Register', async ({ client, assert }) => {
+  test('Register no avatar', async ({ client, assert }) => {
     const response = await client.post('/auth/register').json({
       username: 'TestUser',
       password: 'password',
@@ -29,6 +29,22 @@ test.group('User Test suite', () => {
 
     response.assertStatus(200)
     assert.exists(response.body().token)
+  })
+  test('Register w avatar', async ({ client, assert }) => {
+    const response = await client.post('/auth/register').json({
+      username: 'TestUserAvatar',
+      password: 'password',
+      name: 'Test User',
+      avatar: 'avatardatauri',
+    })
+
+    response.assertStatus(200)
+    assert.exists(response.body().token)
+
+    const user = await User.findBy('username', 'TestUserAvatar')
+
+    assert.isNotNull(user)
+    assert.equal(user?.avatar, 'avatardatauri')
   })
   test('Check db new user', async ({ assert }) => {
     const user = await User.findBy('username', 'TestUser')
