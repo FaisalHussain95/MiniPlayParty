@@ -24,9 +24,26 @@ export default class Room extends BaseModel {
     },
   })
   declare users: ManyToMany<typeof User>
-
   static forUser = scope((query, user: User) => {
     const subQuery = db.from('room_user').select('room_id').where('room_user.user_id', user.id)
+
+    query.whereIn('id', subQuery)
+  })
+
+  @manyToMany(() => User, {
+    pivotTable: 'room_user_requests',
+    onQuery: (query) => {
+      if (query.isRelatedPreloadQuery) {
+        query.select('id', 'name', 'avatar', 'username')
+      }
+    },
+  })
+  declare requests: ManyToMany<typeof User>
+  static requestsForUser = scope((query, user: User) => {
+    const subQuery = db
+      .from('room_user_requests')
+      .select('room_id')
+      .where('room_user_requests.user_id', user.id)
 
     query.whereIn('id', subQuery)
   })

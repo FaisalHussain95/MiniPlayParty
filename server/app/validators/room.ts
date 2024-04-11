@@ -11,6 +11,11 @@ export const updateRoomSchema = vine.object({
   adminIds: vine.array(vine.number()).minLength(1),
 })
 
+export const handleRoomRequestSchema = vine.object({
+  accept: vine.array(vine.number()).nullable().optional(),
+  reject: vine.array(vine.number()).nullable().optional(),
+})
+
 export const roomIdSchema = vine.object({
   id: vine.string().regex(/^[a-zA-Z0-9]{15}$/),
 })
@@ -24,8 +29,15 @@ export const updateRoomValidator = vine.compile(
   })
 )
 
-export const deleteRoomValidator = vine.compile(
+export const idParamRoomValidator = vine.compile(
   vine.object({
+    params: roomIdSchema,
+  })
+)
+
+export const handleRoomRequestValidator = vine.compile(
+  vine.object({
+    ...handleRoomRequestSchema.getProperties(),
     params: roomIdSchema,
   })
 )

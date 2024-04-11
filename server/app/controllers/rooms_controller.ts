@@ -1,9 +1,22 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import { createRoomValidator, deleteRoomValidator, updateRoomValidator } from '#validators/room'
-import { createRoom, deleteRoom, updateRoom } from '#services/room_service'
-import User from '#models/user'
+import {
+  createRoomValidator,
+  handleRoomRequestValidator,
+  idParamRoomValidator,
+  updateRoomValidator,
+} from '#validators/room'
+import {
+  createRoom,
+  deleteRoom,
+  getRequestRoomsOfUser,
+  getRoom,
+  getRoomsOfUser,
+  handleRequest,
+  joinRequest,
+  simpleAuthAdminCheck,
+  updateRoom,
+} from '#services/room_service'
 import Room from '#models/room'
-import { errors as authErrors } from '@adonisjs/auth'
 
 export default class RoomsController {
   /**
@@ -11,11 +24,11 @@ export default class RoomsController {
    */
   async index({ auth }: HttpContext) {
     const user = auth.getUserOrFail()
-    const rooms = await Room.query()
-      .preload('users')
-      .withScopes((scopes) => scopes.forUser(user))
+    const rooms = await getRoomsOfUser(user)
+    const requests = await getRequestRoomsOfUser(user)
 
     return {
+      requests,
       rooms,
     }
   }
@@ -36,27 +49,31 @@ export default class RoomsController {
    */
   async show({ auth, request }: HttpContext) {
     const user = auth.getUserOrFail()
-    const payload = await request.validateUsing(deleteRoomValidator)
-    const room = await Room.query().preload('users').where('id', payload.params.id).firstOrFail()
-    const isUser = room.users.find((u) => u.id === user.id)
-
-    if (!isUser) {
-      throw new authErrors.E_UNAUTHORIZED_ACCESS('Unauthorized access', {
-        guardDriverName: 'access_tokens',
-      })
-    }
+    const payload = await request.validateUsing(idParamRoomValidator)
+    const room = await getRoom(payload.params.id, user)
 
     return room
   }
 
-  static simpleAuthAdminCheck(user: User, room: Room) {
-    const loggedUserIsAdmin = room.users.find((u) => u.id === user.id && u.$extras.pivot_admin)
+  async joinRequest({ auth, request }: HttpContext) {
+    const user = auth.getUserOrFail()
+    const payload = await request.validateUsing(idParamRoomValidator)
 
-    if (!loggedUserIsAdmin) {
-      throw new authErrors.E_UNAUTHORIZED_ACCESS('Unauthorized access', {
-        guardDriverName: 'access_tokens',
-      })
+    // don't matter if it fails we don't want user to know if the given id really exists
+    await joinRequest(user, payload.params.id)
+
+    return {
+      message: 'Request sent',
     }
+  }
+
+  async handleRequest({ auth, request }: HttpContext) {
+    const user = auth.getUserOrFail()
+    const payload = await request.validateUsing(handleRoomRequestValidator)
+
+    await handleRequest(user, payload.params.id, payload)
+
+    return await getRoom(payload.params.id, user)
   }
 
   /**
@@ -65,10 +82,8 @@ export default class RoomsController {
   async update({ auth, request }: HttpContext) {
     const user = auth.getUserOrFail()
     const payload = await request.validateUsing(updateRoomValidator)
-    const room = await Room.query().preload('users').where('id', payload.params.id).firstOrFail()
-    RoomsController.simpleAuthAdminCheck(user, room)
 
-    return await updateRoom(room, payload)
+    return await updateRoom(payload.params.id, user, payload)
   }
 
   /**
@@ -76,9 +91,9 @@ export default class RoomsController {
    */
   async destroy({ auth, request }: HttpContext) {
     const user = auth.getUserOrFail()
-    const payload = await request.validateUsing(deleteRoomValidator)
+    const payload = await request.validateUsing(idParamRoomValidator)
     const room = await Room.query().preload('users').where('id', payload.params.id).firstOrFail()
-    RoomsController.simpleAuthAdminCheck(user, room)
+    simpleAuthAdminCheck(user, room)
 
     return await deleteRoom(room)
   }
