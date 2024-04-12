@@ -13,6 +13,7 @@ import {
   getRoomsOfUser,
   handleUser,
   joinRequest,
+  leaveRoom,
   simpleAuthAdminCheck,
   updateRoom,
 } from '#services/room_service'
@@ -53,6 +54,18 @@ export default class RoomsController {
     const room = await getRoom(payload.params.id, user)
 
     return room
+  }
+
+  async leaveRoom({ auth, request }: HttpContext) {
+    const user = auth.getUserOrFail()
+    const payload = await request.validateUsing(idParamRoomValidator)
+
+    // don't matter if it fails
+    await leaveRoom(user, payload.params.id)
+
+    return {
+      message: 'You have left the group',
+    }
   }
 
   async joinRequest({ auth, request }: HttpContext) {

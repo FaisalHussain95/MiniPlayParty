@@ -9,6 +9,7 @@ test.group('User Test Suite', () => {
       name: 'Test User',
     })
 
+    response.assertAgainstApiSpec()
     response.assertStatus(422)
   })
   test('Invalid password', async ({ client }) => {
@@ -18,6 +19,7 @@ test.group('User Test Suite', () => {
       name: 'Test User',
     })
 
+    response.assertAgainstApiSpec()
     response.assertStatus(422)
   })
   test('Register no avatar', async ({ client, assert }) => {
@@ -27,6 +29,7 @@ test.group('User Test Suite', () => {
       name: 'Test User',
     })
 
+    response.assertAgainstApiSpec()
     response.assertStatus(200)
     assert.exists(response.body().token)
   })
@@ -38,6 +41,7 @@ test.group('User Test Suite', () => {
       avatar: 'avatardatauri',
     })
 
+    response.assertAgainstApiSpec()
     response.assertStatus(200)
     assert.exists(response.body().token)
 
@@ -58,6 +62,7 @@ test.group('User Test Suite', () => {
       name: 'Test User 2',
     })
 
+    response.assertAgainstApiSpec()
     response.assertStatus(422)
   })
   test('Login failed', async ({ client }) => {
@@ -66,6 +71,7 @@ test.group('User Test Suite', () => {
       password: 'password',
     })
 
+    response.assertAgainstApiSpec()
     response.assertStatus(400)
     response.assertBodyContains({ errors: [{ message: 'Invalid user credentials' }] })
   })
@@ -75,6 +81,7 @@ test.group('User Test Suite', () => {
       password: 'password',
     })
 
+    response.assertAgainstApiSpec()
     response.assertStatus(200)
     assert.exists(response.body().token)
   })
@@ -84,6 +91,7 @@ test.group('User Test Suite', () => {
       name: 'Test User 2',
     })
 
+    response.assertAgainstApiSpec()
     response.assertStatus(401)
   })
   test('Update user', async ({ client, assert }) => {
@@ -98,6 +106,7 @@ test.group('User Test Suite', () => {
       avatar: 'https://example.com/avatar.png',
     })
 
+    response.assertAgainstApiSpec()
     response.assertStatus(200)
     response.assertBodyContains({ name: 'Test User 2' })
     response.assertBodyContains({ avatar: 'https://example.com/avatar.png' })
@@ -110,6 +119,7 @@ test.group('User Test Suite', () => {
 
     const response = await client.delete('/auth/user').loginAs(user)
 
+    response.assertAgainstApiSpec()
     response.assertStatus(200)
     response.assertBodyContains({ message: 'User deleted' })
   })

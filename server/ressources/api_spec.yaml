@@ -1,0 +1,576 @@
+openapi: 3.0.2
+info:
+  description: "Mini Play Party API Spec"
+  version: 1.0.0
+  title: Mini Play Party API
+  contact:
+    email: contact@faisalhussain.fr
+servers:
+  - url: http://localhost:3333
+tags:
+  - name: server
+    description: Everything about the server
+  - name: user
+    description: Operations about user
+  - name: room
+    description: Operations about Room
+paths:
+  /:
+    get:
+      tags:
+        - server
+      summary: Get server status
+      description: Return server status in a message
+      operationId: getServerStatus
+      responses:
+        "200":
+          description: Server is OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+  /auth/register:
+    post:
+      tags:
+        - user
+      summary: Register user
+      description: Register user with username, password, name and avatar
+      operationId: registerUser
+      requestBody:
+        $ref: "#/components/requestBodies/UserRegister"
+      responses:
+        200:
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+        422:
+          description: Username already exists or Username is invalid or password is not valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/login:
+    post:
+      tags:
+        - user
+      summary: Login user
+      description: Login user with username and password
+      operationId: loginUser
+      requestBody:
+        $ref: "#/components/requestBodies/UserLogin"
+      responses:
+        200:
+          description: User logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+        400:
+          description: Invalid username or password
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/user:
+    put:
+      tags:
+        - user
+      summary: Update user
+      description: Update user with password, name and avatar
+      operationId: updateUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: "#/components/requestBodies/UserRegister"
+      responses:
+        200:
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        400:
+          description: Invalid password or name or avatar
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+    delete:
+      tags:
+        - user
+      summary: Delete user
+      description: Delete user
+      operationId: deleteUser
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: User deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /room:
+    post:
+      tags:
+        - room
+      summary: Create room
+      description: Create room with name and password
+      operationId: createRoom
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        $ref: "#/components/requestBodies/RoomCreate"
+      responses:
+        200:
+          description: Room created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        400:
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+  /room/{id}:
+    get:
+      tags:
+        - room
+      summary: Get room
+      description: Get room with id
+      operationId: getRoom
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Room id
+          schema:
+            type: string
+      responses:
+        200:
+          description: Room found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoomDetail"
+        400:
+          description: Invalid room id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+    put:
+      tags:
+        - room
+      summary: Update room
+      description: Update room with id
+      operationId: updateRoom
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Room id
+          schema:
+            type: string
+      requestBody:
+        required: true
+        $ref: "#/components/requestBodies/RoomUpdate"
+      responses:
+        200:
+          description: Room updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoomDetail"
+        400:
+          description: Invalid room id or request body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+    delete:
+      tags:
+        - room
+      summary: Delete room
+      description: Delete room with id
+      operationId: deleteRoom
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Room id
+          schema:
+            type: string
+      responses:
+        200:
+          description: Room deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        400:
+          description: Invalid room id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+  /rooms:
+    get:
+      tags:
+        - room
+      summary: Get rooms
+      description: Get all rooms
+      operationId: getRooms
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Rooms found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rooms:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Room"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+  /room/leave/{id}:
+    post:
+      tags:
+        - room
+      summary: Join room
+      description: Join room with id
+      operationId: joinRoom
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Room id
+          schema:
+            type: string
+      responses:
+        200:
+          description: Room joined
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        400:
+          description: Invalid room id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+  /room/join/{id}:
+    post:
+      tags:
+        - room
+      summary: Join room
+      description: Join room with id
+      operationId: joinRoom
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Room id
+          schema:
+            type: string
+      responses:
+        200:
+          description: Room joined
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        400:
+          description: Invalid room id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+  /room/handle-user/{id}:
+    post:
+      tags:
+        - room
+      summary: Handle user
+      description: Handle user with id
+      operationId: handleUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Room id
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                accept:
+                  type: array
+                  items:
+                    type: number
+                reject:
+                  type: array
+                  items:
+                    type: number
+      responses:
+        200:
+          description: User handled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoomDetail"
+        400:
+          description: Invalid room id or request body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  requestBodies:
+    UserLogin:
+      description: User Login schema
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+              password:
+                type: string
+            required:
+              - username
+              - password
+    UserRegister:
+      description: User Register schema
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - username
+              - password
+            properties:
+              username:
+                type: string
+              password:
+                type: string
+              name:
+                type: string
+              avatar:
+                type: string
+    UserUpdate:
+      description: User Update schema
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              avatar:
+                type: string
+              password:
+                type: string
+            required:
+              - name
+              - avatar
+    RoomCreate:
+      description: Room Create schema
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+              avatar:
+                type: string
+    RoomUpdate:
+      description: Room Create schema
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+              avatar:
+                type: string
+              userId:
+                type: array
+                items:
+                  type: number
+              adminIds:
+                type: array
+                items:
+                  type: number
+  schemas:
+    Status:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+    User:
+      type: object
+      required:
+        - id
+        - name
+        - username
+      properties:
+        id:
+          type: number
+        avatar:
+          type: string
+          nullable: true
+        name:
+          type: string
+        username:
+          type: string
+    Room:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: string
+        avatar:
+          type: string
+          nullable: true
+        name:
+          type: string
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        requests:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+    RoomDetail:
+      type: object
+      required:
+        - room
+        - admins
+      properties:
+        room:
+          $ref: "#/components/schemas/Room"
+        admins:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+    Error:
+      type: object
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ErrorMessage"
+    ErrorMessage:
+      type: object
+      required:
+        - message
+      properties:
+        field:
+          type: string
+        rule:
+          type: string
+        message:
+          type: string
+        meta:
+          type: object
+    Token:
+      type: object
+      required:
+        - type
+        - token
+      properties:
+        type:
+          type: string
+        token:
+          type: string

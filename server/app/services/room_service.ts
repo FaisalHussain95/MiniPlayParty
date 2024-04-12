@@ -9,14 +9,6 @@ export const ID_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnop
 
 export const roomIdGenerator = customAlphabet(ID_ALPHABET, 15)
 
-type UserWithAdmin = {
-  id: number
-  name: string
-  avatar: string | null
-  username: string
-  isAdmin: boolean
-}
-
 export const createRoom = async (user: User, payload: Infer<typeof roomSchema>) => {
   const room = new Room()
   room.id = roomIdGenerator()
@@ -52,7 +44,7 @@ export const updateRoom = async (
     }, {})
   )
 
-  return await Room.query().where('id', room.id).preload('users').firstOrFail()
+  return await getRoom(roomId, user)
 }
 
 export const deleteRoom = async (room: Room) => {
@@ -73,27 +65,11 @@ export const getRoom = async (id: string, user: User) => {
     })
   }
 
-  const users: UserWithAdmin[] = room.users.map((u) => {
-    return {
-      id: u.id,
-      name: u.name,
-      avatar: u.avatar,
-      username: u.username,
-      isAdmin: u.$extras.pivot_admin,
-    }
-  })
-
-  // remove users from room
-  const roomClean = {
-    id: room.id,
-    name: room.name,
-    avatar: room.avatar,
-  }
+  const admins: User[] = room.users.filter((u) => !!u.$extras.pivot_admin)
 
   return {
-    isAdmin: isUser.$extras.pivot_admin,
-    users,
-    room: roomClean,
+    admins,
+    room,
   }
 }
 
@@ -110,13 +86,27 @@ export const joinRequest = async (user: User, roomId: string) => {
   }
 }
 
+export const leaveRoom = async (user: User, roomId: string) => {
+  const room = await Room.query().preload('users').where('id', roomId).first()
+
+  if (room) {
+    const userExist = room.users.find((u) => u.id === user.id)
+
+    if (userExist) {
+      await room.related('users').detach([user.id])
+    }
+  }
+}
+
 export const handleUser = async (
   user: User,
   roomId: string,
   payload: Infer<typeof handleRoomRequestSchema>
 ) => {
   const room = await Room.query()
-    .preload('users')
+    .preload('users', (query) => {
+      query.pivotColumns(['admin'])
+    })
     .preload('requests')
     .where('id', roomId)
     .firstOrFail()

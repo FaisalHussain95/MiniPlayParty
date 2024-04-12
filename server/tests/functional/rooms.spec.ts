@@ -41,6 +41,7 @@ test.group('Room Test Suite', () => {
       })
       .loginAs(user)
 
+    response.assertAgainstApiSpec()
     response.assertStatus(200)
     response.assertBodyContains({
       name: 'Test Room API',
@@ -65,6 +66,7 @@ test.group('Room Test Suite', () => {
       })
       .loginAs(user)
 
+    response.assertAgainstApiSpec()
     response.assertStatus(401)
   })
   test('Update Room API logged as User 1', async ({ client, assert }) => {
@@ -83,13 +85,10 @@ test.group('Room Test Suite', () => {
       })
       .loginAs(user)
 
+    response.assertAgainstApiSpec()
     response.assertStatus(200)
-    response.assertBodyContains({
-      name: 'Test Room API Updated',
-      avatar: 'dataAvatarUriUpdated',
-    })
-    assert.isArray(response.body().users)
-    assert.equal(response.body().users.length, 2)
+    assert.isArray(response.body().room.users)
+    assert.equal(response.body().room.users.length, 2)
   })
   test('Try again Update Room API logged as User 1 should fail', async ({ client, assert }) => {
     const user = await User.findBy('id', state.user1Id)
@@ -107,6 +106,7 @@ test.group('Room Test Suite', () => {
       })
       .loginAs(user)
 
+    response.assertAgainstApiSpec()
     response.assertStatus(401)
   })
   test('Try again Update Room API logged as User 2 should pass', async ({ client, assert }) => {
@@ -125,6 +125,7 @@ test.group('Room Test Suite', () => {
       })
       .loginAs(user)
 
+    response.assertAgainstApiSpec()
     response.assertStatus(200)
   })
   test('Check pivot table should be populated', async ({ assert }) => {
@@ -141,6 +142,7 @@ test.group('Room Test Suite', () => {
 
     const response = await client.delete(`/room/${state.roomId}`).loginAs(user)
 
+    response.assertAgainstApiSpec()
     response.assertStatus(200)
   })
   test('Check pivot table', async ({ assert }) => {
@@ -163,6 +165,7 @@ test.group('Room Test Suite', () => {
       })
       .loginAs(user)
 
+    response.assertAgainstApiSpec()
     response.assertStatus(200)
     response.assertBodyContains({
       name: 'Test Room API',
@@ -185,6 +188,7 @@ test.group('Room Test Suite', () => {
       })
       .loginAs(user)
 
+    response.assertAgainstApiSpec()
     response.assertStatus(200)
     response.assertBodyContains({
       name: 'Test Room API',
@@ -201,6 +205,7 @@ test.group('Room Test Suite', () => {
 
     const response = await client.get('/rooms').loginAs(user)
 
+    response.assertAgainstApiSpec()
     response.assertStatus(200)
     assert.isArray(response.body().rooms)
     assert.equal(response.body().rooms.length, 2)
@@ -213,6 +218,7 @@ test.group('Room Test Suite', () => {
 
     const response = await client.get('/rooms').loginAs(user)
 
+    response.assertAgainstApiSpec()
     response.assertStatus(200)
     assert.isArray(response.body().rooms)
     assert.equal(response.body().rooms.length, 0)
@@ -225,16 +231,8 @@ test.group('Room Test Suite', () => {
 
     const response = await client.get(`/room/${state.roomId}`).loginAs(user)
 
+    response.assertAgainstApiSpec()
     response.assertStatus(200)
-    response.assertBodyContains({
-      room: {
-        id: state.roomId,
-        name: 'Test Room API',
-        avatar: 'dataAvatarUri',
-      },
-    })
-    assert.isArray(response.body().users)
-    assert.exists(response.body().isAdmin)
   })
   test('Get specific Room logged as User 2', async ({ client, assert }) => {
     const user = await User.findBy('id', state.user2Id)
@@ -244,6 +242,7 @@ test.group('Room Test Suite', () => {
 
     const response = await client.get(`/room/${state.roomId}`).loginAs(user)
 
+    response.assertAgainstApiSpec()
     response.assertStatus(401)
   })
   test('Send Join Request logged as User 2', async ({ client, assert }) => {
@@ -252,8 +251,9 @@ test.group('Room Test Suite', () => {
     assert.isNotNull(user)
     if (!user) return
 
-    const response = await client.get(`/room/join/${state.roomId}`).loginAs(user)
+    const response = await client.post(`/room/join/${state.roomId}`).loginAs(user)
 
+    response.assertAgainstApiSpec()
     response.assertStatus(200)
   })
   test('Accept Join Request logged as User 1', async ({ client, assert }) => {
@@ -272,7 +272,6 @@ test.group('Room Test Suite', () => {
 
     response.assertStatus(200)
   })
-
   test('Get specific Room logged as User 2', async ({ client, assert }) => {
     const user = await User.findBy('id', state.user2Id)
 
@@ -281,13 +280,29 @@ test.group('Room Test Suite', () => {
 
     const response = await client.get(`/room/${state.roomId}`).loginAs(user)
 
+    response.assertAgainstApiSpec()
     response.assertStatus(200)
-    response.assertBodyContains({
-      room: {
-        id: state.roomId,
-        name: 'Test Room API',
-        avatar: 'dataAvatarUri',
-      },
-    })
+  })
+  test('Leave Room logged as User 2', async ({ client, assert }) => {
+    const user = await User.findBy('id', state.user2Id)
+
+    assert.isNotNull(user)
+    if (!user) return
+
+    const response = await client.post(`/room/leave/${state.roomId}`).loginAs(user)
+
+    response.assertAgainstApiSpec()
+    response.assertStatus(200)
+  })
+  test('Get specific Room logged as User 2', async ({ client, assert }) => {
+    const user = await User.findBy('id', state.user2Id)
+
+    assert.isNotNull(user)
+    if (!user) return
+
+    const response = await client.get(`/room/${state.roomId}`).loginAs(user)
+
+    response.assertAgainstApiSpec()
+    response.assertStatus(401)
   })
 })

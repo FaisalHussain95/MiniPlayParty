@@ -15,7 +15,11 @@ import { authApiClient } from '@adonisjs/auth/plugins/api_client'
  * Learn more - https://japa.dev/docs/runner-config#plugins-optional
  */
 export const plugins: Config['plugins'] = [
-  assert(),
+  assert({
+    openApi: {
+      schemas: [app.makePath('ressources/api_spec.yaml')],
+    },
+  }),
   apiClient(),
   pluginAdonisJS(app),
   authApiClient(app),
