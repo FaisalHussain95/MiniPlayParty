@@ -110,7 +110,7 @@ export const joinRequest = async (user: User, roomId: string) => {
   }
 }
 
-export const handleRequest = async (
+export const handleUser = async (
   user: User,
   roomId: string,
   payload: Infer<typeof handleRoomRequestSchema>
@@ -122,8 +122,8 @@ export const handleRequest = async (
     .firstOrFail()
   simpleAuthAdminCheck(user, room)
 
-  const toAttach = payload.accept?.filter((id) => room.requests.find((u) => u.id === id)) ?? []
-  const toDetach = payload.reject?.filter((id) => room.requests.find((u) => u.id === id)) ?? []
+  const toAttach = payload.accept ?? []
+  const toDetach = payload.reject ?? []
 
   await room.related('users').attach(toAttach)
   await room.related('requests').detach(toDetach)

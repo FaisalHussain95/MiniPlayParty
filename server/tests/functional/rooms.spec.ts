@@ -263,7 +263,7 @@ test.group('Room Test Suite', () => {
     if (!user) return
 
     const response = await client
-      .post(`/room/join/${state.roomId}`)
+      .post(`/room/handle-user/${state.roomId}`)
       .json({
         accept: [state.user2Id],
         reject: [],

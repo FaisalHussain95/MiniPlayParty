@@ -28,4 +28,4 @@ router.delete('/room/:id', [RoomsController, 'destroy']).use(middleware.auth())
 router.get('/rooms', [RoomsController, 'index']).use(middleware.auth())
 
 router.get('/room/join/:id', [RoomsController, 'joinRequest']).use(middleware.auth())
-router.post('/room/join/:id', [RoomsController, 'handleRequest']).use(middleware.auth())
+router.post('/room/handle-user/:id', [RoomsController, 'handleUser']).use(middleware.auth())

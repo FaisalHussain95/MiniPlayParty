@@ -11,7 +11,7 @@ import {
   getRequestRoomsOfUser,
   getRoom,
   getRoomsOfUser,
-  handleRequest,
+  handleUser,
   joinRequest,
   simpleAuthAdminCheck,
   updateRoom,
@@ -67,11 +67,11 @@ export default class RoomsController {
     }
   }
 
-  async handleRequest({ auth, request }: HttpContext) {
+  async handleUser({ auth, request }: HttpContext) {
     const user = auth.getUserOrFail()
     const payload = await request.validateUsing(handleRoomRequestValidator)
 
-    await handleRequest(user, payload.params.id, payload)
+    await handleUser(user, payload.params.id, payload)
 
     return await getRoom(payload.params.id, user)
   }
