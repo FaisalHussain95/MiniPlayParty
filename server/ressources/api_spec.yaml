@@ -274,9 +274,9 @@ paths:
     post:
       tags:
         - room
-      summary: Join room
+      summary: Leave room
       description: Join room with id
-      operationId: joinRoom
+      operationId: leaveRoom
       security:
         - bearerAuth: []
       parameters:
@@ -288,7 +288,7 @@ paths:
             type: string
       responses:
         200:
-          description: Room joined
+          description: Room left
           content:
             application/json:
               schema:
@@ -344,7 +344,7 @@ paths:
         - room
       summary: Handle user
       description: Handle user with id
-      operationId: handleUser
+      operationId: handleRoomRequests
       security:
         - bearerAuth: []
       parameters:
