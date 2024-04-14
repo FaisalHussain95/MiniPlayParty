@@ -6,4 +6,8 @@
         <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
     </style>
 
+    <style name="SplashScreenTheme" parent="SplashScreen_Fullscreen">
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+    </style>
+
 </resources>
