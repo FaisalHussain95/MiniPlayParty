@@ -1,6 +1,6 @@
 openapi: 3.0.2
 info:
-  description: "Mini Play Party API Spec"
+  description: 'Mini Play Party API Spec'
   version: 1.0.0
   title: Mini Play Party API
   contact:
@@ -23,12 +23,12 @@ paths:
       description: Return server status in a message
       operationId: getServerStatus
       responses:
-        "200":
+        '200':
           description: Server is OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Status"
+                $ref: '#/components/schemas/Status'
   /auth/register:
     post:
       tags:
@@ -37,20 +37,20 @@ paths:
       description: Register user with username, password, name and avatar
       operationId: registerUser
       requestBody:
-        $ref: "#/components/requestBodies/UserRegister"
+        $ref: '#/components/requestBodies/UserRegister'
       responses:
         200:
           description: User registered
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Token"
+                $ref: '#/components/schemas/Token'
         422:
           description: Username already exists or Username is invalid or password is not valid
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
   /auth/login:
     post:
       tags:
@@ -59,20 +59,20 @@ paths:
       description: Login user with username and password
       operationId: loginUser
       requestBody:
-        $ref: "#/components/requestBodies/UserLogin"
+        $ref: '#/components/requestBodies/UserLogin'
       responses:
         200:
           description: User logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Token"
+                $ref: '#/components/schemas/Token'
         400:
           description: Invalid username or password
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
   /auth/user:
     put:
       tags:
@@ -83,22 +83,22 @@ paths:
       security:
         - bearerAuth: []
       requestBody:
-        $ref: "#/components/requestBodies/UserRegister"
+        $ref: '#/components/requestBodies/UserRegister'
       responses:
         200:
           description: User updated
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: '#/components/schemas/User'
         400:
           description: Invalid password or name or avatar
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
         401:
-          $ref: "#/components/responses/UnauthorizedError"
+          $ref: '#/components/responses/UnauthorizedError'
     delete:
       tags:
         - user
@@ -118,7 +118,7 @@ paths:
                   message:
                     type: string
         401:
-          $ref: "#/components/responses/UnauthorizedError"
+          $ref: '#/components/responses/UnauthorizedError'
 
   /room:
     post:
@@ -131,7 +131,7 @@ paths:
         - bearerAuth: []
       requestBody:
         required: true
-        $ref: "#/components/requestBodies/RoomCreate"
+        $ref: '#/components/requestBodies/RoomCreate'
       responses:
         200:
           description: Room created
@@ -147,9 +147,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
         401:
-          $ref: "#/components/responses/UnauthorizedError"
+          $ref: '#/components/responses/UnauthorizedError'
   /room/{id}:
     get:
       tags:
@@ -172,15 +172,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RoomDetail"
+                $ref: '#/components/schemas/RoomDetail'
         400:
           description: Invalid room id
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
         401:
-          $ref: "#/components/responses/UnauthorizedError"
+          $ref: '#/components/responses/UnauthorizedError'
     put:
       tags:
         - room
@@ -198,22 +198,22 @@ paths:
             type: string
       requestBody:
         required: true
-        $ref: "#/components/requestBodies/RoomUpdate"
+        $ref: '#/components/requestBodies/RoomUpdate'
       responses:
         200:
           description: Room updated
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RoomDetail"
+                $ref: '#/components/schemas/RoomDetail'
         400:
           description: Invalid room id or request body
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
         401:
-          $ref: "#/components/responses/UnauthorizedError"
+          $ref: '#/components/responses/UnauthorizedError'
     delete:
       tags:
         - room
@@ -244,9 +244,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
         401:
-          $ref: "#/components/responses/UnauthorizedError"
+          $ref: '#/components/responses/UnauthorizedError'
   /rooms:
     get:
       tags:
@@ -267,9 +267,9 @@ paths:
                   rooms:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Room"
+                      $ref: '#/components/schemas/Room'
         401:
-          $ref: "#/components/responses/UnauthorizedError"
+          $ref: '#/components/responses/UnauthorizedError'
   /room/leave/{id}:
     post:
       tags:
@@ -301,9 +301,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
         401:
-          $ref: "#/components/responses/UnauthorizedError"
+          $ref: '#/components/responses/UnauthorizedError'
   /room/join/{id}:
     post:
       tags:
@@ -335,9 +335,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
         401:
-          $ref: "#/components/responses/UnauthorizedError"
+          $ref: '#/components/responses/UnauthorizedError'
   /room/handle-user/{id}:
     post:
       tags:
@@ -375,15 +375,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RoomDetail"
+                $ref: '#/components/schemas/RoomDetail'
         400:
           description: Invalid room id or request body
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
         401:
-          $ref: "#/components/responses/UnauthorizedError"
+          $ref: '#/components/responses/UnauthorizedError'
 components:
   securitySchemes:
     bearerAuth:
@@ -396,7 +396,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Error"
+            $ref: '#/components/schemas/Error'
   requestBodies:
     UserLogin:
       description: User Login schema
@@ -525,11 +525,11 @@ components:
         users:
           type: array
           items:
-            $ref: "#/components/schemas/User"
+            $ref: '#/components/schemas/User'
         requests:
           type: array
           items:
-            $ref: "#/components/schemas/User"
+            $ref: '#/components/schemas/User'
     RoomDetail:
       type: object
       required:
@@ -537,11 +537,11 @@ components:
         - admins
       properties:
         room:
-          $ref: "#/components/schemas/Room"
+          $ref: '#/components/schemas/Room'
         admins:
           type: array
           items:
-            $ref: "#/components/schemas/User"
+            $ref: '#/components/schemas/User'
     Error:
       type: object
       required:
@@ -550,7 +550,7 @@ components:
         errors:
           type: array
           items:
-            $ref: "#/components/schemas/ErrorMessage"
+            $ref: '#/components/schemas/ErrorMessage'
     ErrorMessage:
       type: object
       required:
