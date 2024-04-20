@@ -6,26 +6,28 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
     "start": "react-native start",
     "test": "jest",
     "generateapi": "openapi-generator-cli generate -i ../server/ressources/api_spec.yaml -g typescript-axios -o src/services/api"
   },
   "dependencies": {
-    "@openapitools/openapi-generator-cli": "^2.13.1",
+    "@openapitools/openapi-generator-cli": "^2.13.2",
     "axios": "^1.6.8",
     "react": "18.2.0",
-    "react-native": "0.73.6",
+    "react-native": "^0.73.7",
     "react-native-splash-screen": "^3.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@babel/preset-env": "^7.20.0",
     "@babel/runtime": "^7.20.0",
-    "@react-native/babel-preset": "0.73.21",
-    "@react-native/eslint-config": "0.73.2",
-    "@react-native/metro-config": "0.73.5",
-    "@react-native/typescript-config": "0.73.1",
-    "@types/react": "^18.2.6",
+    "@react-native/babel-preset": "0.75.0-main",
+    "@react-native/eslint-config": "0.75.0-main",
+    "@react-native/metro-config": "0.75.0-main",
+    "@react-native/typescript-config": "0.75.0-main",
+    "@types/react": "^18.2.79",
     "@types/react-test-renderer": "^18.0.0",
     "babel-jest": "^29.6.3",
     "eslint": "^8.19.0",
@@ -33,7 +35,7 @@
     "prettier": "2.8.8",
     "react-native-dotenv": "^3.4.11",
     "react-test-renderer": "18.2.0",
-    "typescript": "5.0.4"
+    "typescript": "5.4.5"
   },
   "engines": {
     "node": ">=18"
