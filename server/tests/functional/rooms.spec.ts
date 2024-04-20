@@ -87,8 +87,8 @@ test.group('Room Test Suite', () => {
 
     response.assertAgainstApiSpec()
     response.assertStatus(200)
-    assert.isArray(response.body().room.users)
-    assert.equal(response.body().room.users.length, 2)
+    assert.isArray(response.body().users)
+    assert.equal(response.body().users.length, 2)
   })
   test('Try again Update Room API logged as User 1 should fail', async ({ client, assert }) => {
     const user = await User.findBy('id', state.user1Id)
@@ -255,6 +255,19 @@ test.group('Room Test Suite', () => {
 
     response.assertAgainstApiSpec()
     response.assertStatus(200)
+  })
+  test('Get Room and check new requests', async ({ client, assert }) => {
+    const user = await User.findBy('id', state.user1Id)
+
+    assert.isNotNull(user)
+    if (!user) return
+
+    const response = await client.get(`/room/${state.roomId}`).loginAs(user)
+
+    response.assertAgainstApiSpec()
+    response.assertStatus(200)
+    assert.isArray(response.body().requests)
+    assert.equal(response.body().requests.length, 1)
   })
   test('Accept Join Request logged as User 1', async ({ client, assert }) => {
     const user = await User.findBy('id', state.user1Id)

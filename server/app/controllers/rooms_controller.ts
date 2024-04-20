@@ -8,7 +8,6 @@ import {
 import {
   createRoom,
   deleteRoom,
-  getRequestRoomsOfUser,
   getRoom,
   getRoomsOfUser,
   handleUser,
@@ -26,10 +25,8 @@ export default class RoomsController {
   async index({ auth }: HttpContext) {
     const user = auth.getUserOrFail()
     const rooms = await getRoomsOfUser(user)
-    const requests = await getRequestRoomsOfUser(user)
 
     return {
-      requests,
       rooms,
     }
   }

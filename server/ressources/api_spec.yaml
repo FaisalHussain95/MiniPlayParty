@@ -172,7 +172,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RoomDetail'
+                $ref: '#/components/schemas/Room'
         400:
           description: Invalid room id
           content:
@@ -205,7 +205,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RoomDetail'
+                $ref: '#/components/schemas/Room'
         400:
           description: Invalid room id or request body
           content:
@@ -375,7 +375,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RoomDetail'
+                $ref: '#/components/schemas/Room'
         400:
           description: Invalid room id or request body
           content:
@@ -510,6 +510,8 @@ components:
           type: string
         username:
           type: string
+        isAdmin:
+          type: boolean
     Room:
       type: object
       required:
@@ -527,18 +529,6 @@ components:
           items:
             $ref: '#/components/schemas/User'
         requests:
-          type: array
-          items:
-            $ref: '#/components/schemas/User'
-    RoomDetail:
-      type: object
-      required:
-        - room
-        - admins
-      properties:
-        room:
-          $ref: '#/components/schemas/Room'
-        admins:
           type: array
           items:
             $ref: '#/components/schemas/User'
