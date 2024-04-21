@@ -39,14 +39,6 @@ export default class Room extends BaseModel {
     },
   })
   declare requests: ManyToMany<typeof User>
-  static requestsForUser = scope((query, user: User) => {
-    const subQuery = db
-      .from('room_user_requests')
-      .select('room_id')
-      .where('room_user_requests.user_id', user.id)
-
-    query.whereIn('id', subQuery)
-  })
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

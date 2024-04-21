@@ -9,11 +9,32 @@ import {
   clearRoomCache,
   getRoomCache,
   setRoomCache,
+  getUserRoomsCache,
+  setUserRoomsCache,
 } from '#services/room_cache_service'
 
 export const ID_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 
 export const roomIdGenerator = customAlphabet(ID_ALPHABET, 15)
+
+export type APIMessage = {
+  message: string
+}
+
+export type ResponseType = {
+  data: Room | Room[] | APIMessage | null
+  cacheHit?: boolean
+}
+
+export const cacheDataService = (
+  data: Pick<ResponseType, 'data'>['data'],
+  cacheHit?: Pick<ResponseType, 'cacheHit'>['cacheHit']
+): ResponseType => {
+  return {
+    cacheHit,
+    data,
+  }
+}
 
 export const createRoom = async (user: User, payload: Infer<typeof roomSchema>) => {
   const room = new Room()
@@ -31,7 +52,7 @@ export const createRoom = async (user: User, payload: Infer<typeof roomSchema>) 
   clearUserRoomsCache([user.id])
   await clearRoomCache(room.id)
 
-  return room
+  return cacheDataService(room, false)
 }
 
 export const updateRoom = async (
@@ -55,7 +76,7 @@ export const updateRoom = async (
   )
 
   // Flush user rooms cache and room cache
-  await clearUserRoomsCache(payload.userIds)
+  await clearUserRoomsCache([...payload.userIds, ...room.users.map((u) => u.id)])
   await clearRoomCache(roomId)
 
   return await getRoom(roomId, user)
@@ -68,9 +89,9 @@ export const deleteRoom = async (room: Room) => {
   await clearUserRoomsCache(room.users.map((u) => u.id))
   await clearRoomCache(room.id)
 
-  return {
+  return cacheDataService({
     message: 'Room deleted',
-  }
+  })
 }
 
 export const getRoomFromDb = async (id: string) => {
@@ -85,10 +106,13 @@ export const getRoomFromDb = async (id: string) => {
 
 export const getRoom = async (id: string, user?: User) => {
   let room: Room
+  let cacheHit = false
 
   try {
     room = await getRoomCache(id)
+    cacheHit = true
   } catch (error) {
+    cacheHit = false
     room = await getRoomFromDb(id)
     await setRoomCache(id, room)
   }
@@ -103,14 +127,17 @@ export const getRoom = async (id: string, user?: User) => {
     }
   }
 
-  return room
+  return cacheDataService(room, cacheHit)
 }
 
 export const joinRequest = async (user: User, roomId: string) => {
   let room: Room | null
+  let cacheHit: boolean | undefined
 
   try {
-    room = await getRoom(roomId)
+    const data = await getRoom(roomId)
+    room = data.data as Room
+    cacheHit = data.cacheHit
   } catch (error) {
     // Room not found
     room = null
@@ -133,14 +160,17 @@ export const joinRequest = async (user: User, roomId: string) => {
     }
   }
 
-  return room
+  return cacheDataService(room, cacheHit)
 }
 
 export const leaveRoom = async (user: User, roomId: string) => {
   let room: Room | null
+  let cacheHit: boolean | undefined
 
   try {
-    room = await getRoom(roomId)
+    const data = await getRoom(roomId)
+    room = data.data as Room
+    cacheHit = data.cacheHit
   } catch (error) {
     // Room not found
     room = null
@@ -162,9 +192,7 @@ export const leaveRoom = async (user: User, roomId: string) => {
     }
   }
 
-  return {
-    message: 'Left room',
-  }
+  return cacheDataService(room, cacheHit)
 }
 
 export const handleUser = async (
@@ -173,9 +201,12 @@ export const handleUser = async (
   payload: Infer<typeof handleRoomRequestSchema>
 ) => {
   let room: Room | null
+  let cacheHit: boolean | undefined
 
   try {
-    room = await getRoom(roomId)
+    const data = await getRoom(roomId)
+    room = data.data as Room
+    cacheHit = data.cacheHit
 
     simpleAuthAdminCheck(user, room)
 
@@ -196,17 +227,34 @@ export const handleUser = async (
     // Room not found
   }
 
-  return {
-    message: 'Users handled',
-  }
+  return cacheDataService(
+    {
+      message: 'Users handled',
+    },
+    cacheHit
+  )
 }
 
 export const getRoomsOfUser = async (user: User) => {
-  return await Room.query().withScopes((scopes) => scopes.forUser(user))
-}
+  let rooms: Room[]
+  let cacheHit: boolean | undefined
 
-export const getRequestRoomsOfUser = async (user: User) => {
-  return await Room.query().withScopes((scopes) => scopes.requestsForUser(user))
+  try {
+    rooms = (await getUserRoomsCache(user.id)) as Room[]
+    cacheHit = true
+  } catch (error) {
+    const roomsDb = await Room.query()
+      .withScopes((scopes) => scopes.forUser(user))
+      .preload('users')
+      .preload('requests')
+
+    await setUserRoomsCache(user.id, roomsDb)
+
+    rooms = roomsDb
+    cacheHit = false
+  }
+
+  return cacheDataService(rooms, cacheHit)
 }
 
 export const simpleAuthAdminCheck = (user: User, room: Room) => {

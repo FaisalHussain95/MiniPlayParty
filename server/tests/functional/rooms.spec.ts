@@ -81,14 +81,80 @@ test.group('Room Test Suite', () => {
         name: 'Test Room API Updated',
         avatar: 'dataAvatarUriUpdated',
         userIds: [state.user1Id, state.user2Id],
-        adminIds: [state.user2Id],
+        adminIds: [state.user1Id, state.user2Id],
       })
       .loginAs(user)
 
     response.assertAgainstApiSpec()
     response.assertStatus(200)
-    assert.isArray(response.body().users)
-    assert.equal(response.body().users.length, 2)
+  })
+  test('Check User 1 Rooms should be 1 room', async ({ client, assert }) => {
+    const user = await User.findBy('id', state.user1Id)
+
+    assert.isNotNull(user)
+    if (!user) return
+
+    const response = await client.get('/rooms').loginAs(user)
+
+    response.assertAgainstApiSpec()
+    response.assertStatus(200)
+    assert.isArray(response.body().rooms)
+    assert.equal(response.body().rooms.length, 1)
+  })
+  test('Update Room API delete User 1 logged as User 1', async ({ client, assert }) => {
+    const user = await User.findBy('id', state.user1Id)
+
+    assert.isNotNull(user)
+    if (!user) return
+
+    const response = await client
+      .put(`/room/${state.roomId}`)
+      .json({
+        name: 'Test Room API Updated deleted user 1',
+        avatar: 'dataAvatarUriUpdated',
+        userIds: [state.user2Id],
+        adminIds: [state.user2Id],
+      })
+      .loginAs(user)
+
+    response.assertAgainstApiSpec()
+    response.assertStatus(401)
+  })
+  test('Check if room is updated', async ({ client, assert }) => {
+    const user = await User.findBy('id', state.user2Id)
+
+    assert.isNotNull(user)
+    if (!user) return
+
+    const response = await client.get(`/room/${state.roomId}`).loginAs(user)
+
+    response.assertAgainstApiSpec()
+    response.assertStatus(200)
+    assert.equal(response.body().name, 'Test Room API Updated deleted user 1')
+  })
+  test('Check User 1 Rooms should be empty', async ({ client, assert }) => {
+    const user = await User.findBy('id', state.user1Id)
+
+    assert.isNotNull(user)
+    if (!user) return
+
+    const response = await client.get('/rooms').loginAs(user)
+
+    response.assertAgainstApiSpec()
+    response.assertStatus(200)
+    assert.isArray(response.body().rooms)
+    assert.equal(response.body().rooms.length, 0)
+  })
+  test('Try get room logged as User 1 should fail', async ({ client, assert }) => {
+    const user = await User.findBy('id', state.user1Id)
+
+    assert.isNotNull(user)
+    if (!user) return
+
+    const response = await client.get(`/room/${state.roomId}`).loginAs(user)
+
+    response.assertAgainstApiSpec()
+    response.assertStatus(401)
   })
   test('Try again Update Room API logged as User 1 should fail', async ({ client, assert }) => {
     const user = await User.findBy('id', state.user1Id)

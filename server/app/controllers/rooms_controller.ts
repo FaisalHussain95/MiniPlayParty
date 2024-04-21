@@ -1,4 +1,4 @@
-import type { HttpContext } from '@adonisjs/core/http'
+import type { HttpContext, Response } from '@adonisjs/core/http'
 import {
   createRoomValidator,
   handleRoomRequestValidator,
@@ -16,19 +16,20 @@ import {
   simpleAuthAdminCheck,
   updateRoom,
 } from '#services/room_service'
+import type { ResponseType } from '#services/room_service'
 import Room from '#models/room'
 
 export default class RoomsController {
   /**
    * Display a list of resource
    */
-  async index({ auth }: HttpContext) {
+  async index({ auth, response }: HttpContext) {
     const user = auth.getUserOrFail()
-    const rooms = await getRoomsOfUser(user)
+    const data = await getRoomsOfUser(user)
 
-    return {
+    return this.processRespone(data, response, (rooms) => ({
       rooms,
-    }
+    }))
   }
 
   /**
@@ -39,18 +40,18 @@ export default class RoomsController {
     const payload = await request.validateUsing(createRoomValidator)
     const room = await createRoom(user, payload)
 
-    return room
+    return room.data as Room
   }
 
   /**
    * Show individual record
    */
-  async show({ auth, request }: HttpContext) {
+  async show({ auth, request, response }: HttpContext) {
     const user = auth.getUserOrFail()
     const payload = await request.validateUsing(idParamRoomValidator)
-    const room = await getRoom(payload.params.id, user)
+    const data = await getRoom(payload.params.id, user)
 
-    return room
+    return this.processRespone(data, response)
   }
 
   async leaveRoom({ auth, request }: HttpContext) {
@@ -77,34 +78,43 @@ export default class RoomsController {
     }
   }
 
-  async handleUser({ auth, request }: HttpContext) {
+  async handleUser({ auth, request, response }: HttpContext) {
     const user = auth.getUserOrFail()
     const payload = await request.validateUsing(handleRoomRequestValidator)
 
     await handleUser(user, payload.params.id, payload)
 
-    return await getRoom(payload.params.id, user)
+    return this.processRespone(await getRoom(payload.params.id, user), response)
   }
 
   /**
    * Handle form submission for the edit action
    */
-  async update({ auth, request }: HttpContext) {
+  async update({ auth, request, response }: HttpContext) {
     const user = auth.getUserOrFail()
     const payload = await request.validateUsing(updateRoomValidator)
 
-    return await updateRoom(payload.params.id, user, payload)
+    return this.processRespone(await updateRoom(payload.params.id, user, payload), response)
   }
 
   /**
    * Delete record
    */
-  async destroy({ auth, request }: HttpContext) {
+  async destroy({ auth, request, response }: HttpContext) {
     const user = auth.getUserOrFail()
     const payload = await request.validateUsing(idParamRoomValidator)
     const room = await Room.query().preload('users').where('id', payload.params.id).firstOrFail()
     simpleAuthAdminCheck(user, room)
 
-    return await deleteRoom(room)
+    return this.processRespone(await deleteRoom(room), response)
+  }
+
+  processRespone(
+    data: ResponseType,
+    response: Response,
+    dataCb?: (data: Pick<ResponseType, 'data'>['data']) => any
+  ) {
+    if (data.cacheHit) response.header('X-Cache', 'HIT')
+    return dataCb ? dataCb(data.data) : data.data
   }
 }
