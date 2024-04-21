@@ -7,6 +7,7 @@ services:
       REDIS_ARGS: '--requirepass password'
     ports:
       - 6379:6379
+
   db:
     image: postgres
     # set shared memory limit when using docker-compose
@@ -22,3 +23,12 @@ services:
     image: adminer
     ports:
       - 8080:8080
+
+  swagger:
+    image: swaggerapi/swagger-ui
+    ports:
+      - 9000:8080
+    environment:
+      SWAGGER_JSON: /api/swagger.json
+    volumes:
+      - ./ressources/api_spec.yaml:/api/swagger.json
