@@ -3,6 +3,8 @@ name: mini_play_party_server
 services:
   redis:
     image: redis
+    environment:
+      REDIS_ARGS: "--requirepass password"
     ports:
       - 6379:6379
   db:
