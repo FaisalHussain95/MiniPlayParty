@@ -114,7 +114,7 @@ export default class RoomsController {
     response: Response,
     dataCb?: (data: Pick<ResponseType, 'data'>['data']) => any
   ) {
-    if (data.cacheHit) response.header('X-Cache', 'HIT')
+    response.header('X-Cache', data.cacheHit ? 'HIT' : 'MISS')
     return dataCb ? dataCb(data.data) : data.data
   }
 }
