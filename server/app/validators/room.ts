@@ -1,8 +1,9 @@
 import vine from '@vinejs/vine'
+import base64Image from '#validators/avatar'
 
 export const roomSchema = vine.object({
   name: vine.string().trim(),
-  avatar: vine.string().optional(),
+  avatar: vine.string().use(base64Image()).optional(),
 })
 
 export const updateRoomSchema = vine.object({

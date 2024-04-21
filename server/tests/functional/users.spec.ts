@@ -33,12 +33,23 @@ test.group('User Test Suite', () => {
     response.assertStatus(200)
     assert.exists(response.body().token)
   })
+  test('Register w invalid avatar', async ({ client }) => {
+    const response = await client.post('/auth/register').json({
+      username: 'TestUserAvatar',
+      password: 'password',
+      name: 'Test User',
+      avatar: 'invalid avatar',
+    })
+
+    response.assertAgainstApiSpec()
+    response.assertStatus(422)
+  })
   test('Register w avatar', async ({ client, assert }) => {
     const response = await client.post('/auth/register').json({
       username: 'TestUserAvatar',
       password: 'password',
       name: 'Test User',
-      avatar: 'avatardatauri',
+      avatar: 'data:image/png;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=',
     })
 
     response.assertAgainstApiSpec()
@@ -48,7 +59,10 @@ test.group('User Test Suite', () => {
     const user = await User.findBy('username', 'TestUserAvatar')
 
     assert.isNotNull(user)
-    assert.equal(user?.avatar, 'avatardatauri')
+    assert.equal(
+      user?.avatar,
+      'data:image/png;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs='
+    )
   })
   test('Check db new user', async ({ assert }) => {
     const user = await User.findBy('username', 'TestUser')
@@ -103,13 +117,15 @@ test.group('User Test Suite', () => {
     const response = await client.put('/auth/user').loginAs(user).json({
       password: 'password2',
       name: 'Test User 2',
-      avatar: 'https://example.com/avatar.png',
+      avatar: 'data:image/png;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=',
     })
 
     response.assertAgainstApiSpec()
     response.assertStatus(200)
     response.assertBodyContains({ name: 'Test User 2' })
-    response.assertBodyContains({ avatar: 'https://example.com/avatar.png' })
+    response.assertBodyContains({
+      avatar: 'data:image/png;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=',
+    })
   })
   test('Get logged in user', async ({ client, assert }) => {
     const user = await User.findBy('username', 'TestUser')
@@ -122,7 +138,9 @@ test.group('User Test Suite', () => {
     response.assertAgainstApiSpec()
     response.assertStatus(200)
     response.assertBodyContains({ name: 'Test User 2' })
-    response.assertBodyContains({ avatar: 'https://example.com/avatar.png' })
+    response.assertBodyContains({
+      avatar: 'data:image/png;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=',
+    })
   })
   test('Delete user', async ({ client, assert }) => {
     const user = await User.findBy('username', 'TestUser')

@@ -27,6 +27,23 @@ test.group('Room Test Suite', () => {
     assert.isNotNull(user2.id)
     state.user2Id = user2.id
   })
+  test('Create Room API w/ valid avatar logged as User 1', async ({ client, assert }) => {
+    const user = await User.findBy('id', state.user1Id)
+
+    assert.isNotNull(user)
+    if (!user) return
+
+    const response = await client
+      .post('/room')
+      .json({
+        name: 'Test Room API',
+        avatar: 'shouldfailvalidation',
+      })
+      .loginAs(user)
+
+    response.assertAgainstApiSpec()
+    response.assertStatus(422)
+  })
   test('Create Room API logged as User 1', async ({ client, assert }) => {
     const user = await User.findBy('id', state.user1Id)
 
@@ -37,7 +54,6 @@ test.group('Room Test Suite', () => {
       .post('/room')
       .json({
         name: 'Test Room API',
-        avatar: 'dataAvatarUri',
       })
       .loginAs(user)
 
@@ -45,7 +61,6 @@ test.group('Room Test Suite', () => {
     response.assertStatus(200)
     response.assertBodyContains({
       name: 'Test Room API',
-      avatar: 'dataAvatarUri',
     })
     assert.exists(response.body().id)
     state.roomId = response.body().id
@@ -60,7 +75,6 @@ test.group('Room Test Suite', () => {
       .put(`/room/${state.roomId}`)
       .json({
         name: 'Test Room API Updated',
-        avatar: 'dataAvatarUriUpdated',
         userIds: [state.user1Id, state.user2Id],
         adminIds: [state.user2Id],
       })
@@ -79,7 +93,6 @@ test.group('Room Test Suite', () => {
       .put(`/room/${state.roomId}`)
       .json({
         name: 'Test Room API Updated',
-        avatar: 'dataAvatarUriUpdated',
         userIds: [state.user1Id, state.user2Id],
         adminIds: [state.user1Id, state.user2Id],
       })
@@ -111,7 +124,6 @@ test.group('Room Test Suite', () => {
       .put(`/room/${state.roomId}`)
       .json({
         name: 'Test Room API Updated deleted user 1',
-        avatar: 'dataAvatarUriUpdated',
         userIds: [state.user2Id],
         adminIds: [state.user2Id],
       })
@@ -166,7 +178,6 @@ test.group('Room Test Suite', () => {
       .put(`/room/${state.roomId}`)
       .json({
         name: 'Test Room API Updated v2',
-        avatar: 'dataAvatarUriUpdated',
         userIds: [state.user1Id, state.user2Id],
         adminIds: [state.user2Id],
       })
@@ -185,7 +196,6 @@ test.group('Room Test Suite', () => {
       .put(`/room/${state.roomId}`)
       .json({
         name: 'Test Room API Updated v2',
-        avatar: 'dataAvatarUriUpdated',
         userIds: [state.user1Id, state.user2Id],
         adminIds: [state.user1Id, state.user2Id],
       })
@@ -227,7 +237,6 @@ test.group('Room Test Suite', () => {
       .post('/room')
       .json({
         name: 'Test Room API',
-        avatar: 'dataAvatarUri',
       })
       .loginAs(user)
 
@@ -235,7 +244,6 @@ test.group('Room Test Suite', () => {
     response.assertStatus(200)
     response.assertBodyContains({
       name: 'Test Room API',
-      avatar: 'dataAvatarUri',
     })
     assert.exists(response.body().id)
     state.roomId = response.body().id
@@ -250,7 +258,6 @@ test.group('Room Test Suite', () => {
       .post('/room')
       .json({
         name: 'Test Room API',
-        avatar: 'dataAvatarUri',
       })
       .loginAs(user)
 
@@ -258,7 +265,6 @@ test.group('Room Test Suite', () => {
     response.assertStatus(200)
     response.assertBodyContains({
       name: 'Test Room API',
-      avatar: 'dataAvatarUri',
     })
     assert.exists(response.body().id)
     state.roomId = response.body().id

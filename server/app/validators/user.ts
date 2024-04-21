@@ -1,5 +1,6 @@
 import vine from '@vinejs/vine'
 import { authSchema } from '#validators/auth'
+import base64Image from '#validators/avatar'
 
 export const userSchema = vine.object({
   ...authSchema.getProperties(),
@@ -8,7 +9,7 @@ export const userSchema = vine.object({
     return !user
   }),
   name: vine.string().trim(),
-  avatar: vine.string().optional(),
+  avatar: vine.string().use(base64Image()).optional(),
 })
 
 export const updateUserSchema = vine.object({
