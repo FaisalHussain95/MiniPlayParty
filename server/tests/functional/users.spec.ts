@@ -111,6 +111,19 @@ test.group('User Test Suite', () => {
     response.assertBodyContains({ name: 'Test User 2' })
     response.assertBodyContains({ avatar: 'https://example.com/avatar.png' })
   })
+  test('Get logged in user', async ({ client, assert }) => {
+    const user = await User.findBy('username', 'TestUser')
+
+    assert.isNotNull(user)
+    if (!user) return
+
+    const response = await client.get('/auth/user').loginAs(user)
+
+    response.assertAgainstApiSpec()
+    response.assertStatus(200)
+    response.assertBodyContains({ name: 'Test User 2' })
+    response.assertBodyContains({ avatar: 'https://example.com/avatar.png' })
+  })
   test('Delete user', async ({ client, assert }) => {
     const user = await User.findBy('username', 'TestUser')
 

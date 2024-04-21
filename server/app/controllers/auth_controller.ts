@@ -12,4 +12,15 @@ export default class AuthController {
 
     return token
   }
+
+  async getUser({ auth }: HttpContext) {
+    const user = auth.getUserOrFail()
+
+    return {
+      id: user.id,
+      username: user.username,
+      name: user.name,
+      avatar: user.avatar,
+    }
+  }
 }

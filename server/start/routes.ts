@@ -18,6 +18,7 @@ router.get('/', [StatusController, 'index'])
 
 router.post('/auth/login', [AuthController, 'login'])
 router.post('/auth/register', [UsersController, 'store'])
+router.get('/auth/user', [AuthController, 'getUser']).use(middleware.auth())
 router.put('/auth/user', [UsersController, 'update']).use(middleware.auth())
 router.delete('/auth/user', [UsersController, 'destroy']).use(middleware.auth())
 

@@ -7,6 +7,7 @@ info:
     email: contact@faisalhussain.fr
 servers:
   - url: http://localhost:3333
+  - url: http://miniplay.realezio.com
 tags:
   - name: server
     description: Everything about the server
@@ -74,6 +75,23 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /auth/user:
+    get:
+      tags:
+        - user
+      summary: Get user
+      description: Get user with token
+      operationId: getUser
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Get Logged User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
     put:
       tags:
         - user
