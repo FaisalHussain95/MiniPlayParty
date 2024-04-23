@@ -1,7 +1,18 @@
 import redis from '@adonisjs/redis/services/main'
+import Room from '#models/room'
 
 export const userRoomsCacheId = (id: number) => `user:${id}:rooms`
 export const roomCacheId = (id: string) => `room:${id}`
+
+const isRoomCacheInvalid = (room: Room) => {
+  if (typeof room.id !== 'string') {
+    return true
+  } else if (typeof room.name !== 'string') {
+    return true
+  }
+
+  return false
+}
 
 export const clearUserRoomsCache = async (ids?: number[]) => {
   try {
@@ -29,7 +40,14 @@ export const getUserRoomsCache = async (id: number) => {
       return Promise.reject('Rooms not found')
     }
 
-    return JSON.parse(rooms)
+    const cacheRooms = JSON.parse(rooms) as Room[]
+    if (!Array.isArray(cacheRooms)) {
+      return Promise.reject('Invalid cache value')
+    } else if (cacheRooms.length !== 0 && isRoomCacheInvalid(cacheRooms[0])) {
+      return Promise.reject('Invalid cache value')
+    }
+
+    return cacheRooms
   } catch (error) {
     return Promise.reject('Failed to get user rooms cache or parse value')
   }
@@ -51,7 +69,13 @@ export const getRoomCache = async (id: string) => {
       return Promise.reject('Room not found')
     }
 
-    return JSON.parse(room)
+    const cacheRoom = JSON.parse(room) as Room
+
+    if (isRoomCacheInvalid(cacheRoom)) {
+      return Promise.reject('Invalid cache value')
+    }
+
+    return cacheRoom
   } catch (error) {
     return Promise.reject('Failed to get room cache or parse value')
   }
