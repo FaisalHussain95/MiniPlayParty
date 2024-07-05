@@ -81,10 +81,10 @@ export const getRoomCache = async (id: string) => {
   }
 }
 
-export const setRoomCache = async (id: string, room: any) => {
+export const setRoomCache = async (id: string, room: Room) => {
   try {
     await redis.set(roomCacheId(id), JSON.stringify(room))
-    await clearUserRoomsCache(room?.users?.map((u: any) => userRoomsCacheId(u.id)))
+    await clearUserRoomsCache(room?.users?.map((u: any) => u.id))
   } catch (error) {
     console.error('Failed to set room cache', error)
   }
