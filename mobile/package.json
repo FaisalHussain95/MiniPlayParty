@@ -13,7 +13,7 @@
     "generateapi": "openapi-generator-cli generate -i ../server/ressources/api_spec.yaml -g typescript-axios -o src/services/api"
   },
   "dependencies": {
-    "@openapitools/openapi-generator-cli": "^2.13.2",
+    "@openapitools/openapi-generator-cli": "^2.16.3",
     "axios": "^1.6.8",
     "react": "18.2.0",
     "react-native": "^0.73.7",
