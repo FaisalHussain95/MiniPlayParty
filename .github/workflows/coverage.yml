@@ -1,0 +1,55 @@
+name: Coverage Report
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create a .env file for the server app
+        uses: canastro/copy-file-action@master
+        with:
+          source: "server/.env.example"
+          target: "server/.env"
+
+      - name: Run docker compose
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: "./server/docker-compose.yml"
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: 'server'
+
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: ./server
+
+      - name: Run tests with coverage
+        run: pnpm run test:coverage
+        working-directory: ./server
+
+      - name: Update Coverage Badge
+        # GitHub actions: default branch variable
+        # https://stackoverflow.com/questions/64781462/github-actions-default-branch-variable
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        uses: we-cli/coverage-badge-action@main
+        working-directory: ./server
