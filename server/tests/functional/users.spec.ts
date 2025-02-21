@@ -33,12 +33,23 @@ test.group('User Test Suite', () => {
     response.assertStatus(200)
     assert.exists(response.body().token)
   })
-  test('Register w invalid avatar', async ({ client }) => {
+  test('Register w invalid avatar 1/2', async ({ client }) => {
     const response = await client.post('/auth/register').json({
       username: 'TestUserAvatar',
       password: 'password',
       name: 'Test User',
       avatar: 'invalid avatar',
+    })
+
+    response.assertAgainstApiSpec()
+    response.assertStatus(422)
+  })
+  test('Register w invalid avatar 2/2', async ({ client }) => {
+    const response = await client.post('/auth/register').json({
+      username: 'TestUserAvatar',
+      password: 'password',
+      name: 'Test User',
+      avatar: { toto: 'toto' },
     })
 
     response.assertAgainstApiSpec()

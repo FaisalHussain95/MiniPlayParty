@@ -1,6 +1,8 @@
 import { test } from '@japa/runner'
 import User from '#models/user'
 import db from '@adonisjs/lucid/services/db'
+import redis from '@adonisjs/redis/services/main'
+import { userRoomsCacheId, roomCacheId } from '#services/room_cache_service'
 
 test.group('Room Test Suite', () => {
   const state = {
@@ -270,6 +272,90 @@ test.group('Room Test Suite', () => {
     state.roomId = response.body().id
   })
   test('Get all Rooms logged as User 1', async ({ client, assert }) => {
+    const user = await User.findBy('id', state.user1Id)
+
+    assert.isNotNull(user)
+    if (!user) return
+
+    const response = await client.get('/rooms').loginAs(user)
+
+    response.assertAgainstApiSpec()
+    response.assertStatus(200)
+    assert.isArray(response.body().rooms)
+    assert.equal(response.body().rooms.length, 2)
+  })
+  test('Get all Rooms logged as User 1 from cache and break it', async ({ client, assert }) => {
+    const user = await User.findBy('id', state.user1Id)
+
+    assert.isNotNull(user)
+    if (!user) return
+
+    const response = await client.get('/rooms').loginAs(user)
+
+    response.assertAgainstApiSpec()
+    response.assertStatus(200)
+    assert.isArray(response.body().rooms)
+    assert.equal(response.body().rooms.length, 2)
+
+    await redis.set(userRoomsCacheId(user.id), 'TOTO')
+  })
+  test('Get all Rooms logged as User 1 from broken cache 1/3', async ({ client, assert }) => {
+    const user = await User.findBy('id', state.user1Id)
+
+    assert.isNotNull(user)
+    if (!user) return
+
+    const response = await client.get('/rooms').loginAs(user)
+
+    response.assertAgainstApiSpec()
+    response.assertStatus(200)
+    assert.isArray(response.body().rooms)
+    assert.equal(response.body().rooms.length, 2)
+  })
+  test('Get all Rooms logged as User 1 from cache and tempered', async ({ client, assert }) => {
+    const user = await User.findBy('id', state.user1Id)
+
+    assert.isNotNull(user)
+    if (!user) return
+
+    const response = await client.get('/rooms').loginAs(user)
+
+    response.assertAgainstApiSpec()
+    response.assertStatus(200)
+    assert.isArray(response.body().rooms)
+    assert.equal(response.body().rooms.length, 2)
+
+    await redis.set(userRoomsCacheId(user.id), '{}')
+  })
+  test('Get all Rooms logged as User 1 from broken cache 2/3', async ({ client, assert }) => {
+    const user = await User.findBy('id', state.user1Id)
+
+    assert.isNotNull(user)
+    if (!user) return
+
+    const response = await client.get('/rooms').loginAs(user)
+
+    response.assertAgainstApiSpec()
+    response.assertStatus(200)
+    assert.isArray(response.body().rooms)
+    assert.equal(response.body().rooms.length, 2)
+  })
+  test('Get all Rooms logged as User 1 from cache and tempered', async ({ client, assert }) => {
+    const user = await User.findBy('id', state.user1Id)
+
+    assert.isNotNull(user)
+    if (!user) return
+
+    const response = await client.get('/rooms').loginAs(user)
+
+    response.assertAgainstApiSpec()
+    response.assertStatus(200)
+    assert.isArray(response.body().rooms)
+    assert.equal(response.body().rooms.length, 2)
+
+    await redis.set(userRoomsCacheId(user.id), '[{}, {}]')
+  })
+  test('Get all Rooms logged as User 1 from broken cache 3/3', async ({ client, assert }) => {
     const user = await User.findBy('id', state.user1Id)
 
     assert.isNotNull(user)

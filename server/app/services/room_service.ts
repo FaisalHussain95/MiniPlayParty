@@ -114,7 +114,7 @@ export const getRoom = async (id: string, user?: User) => {
   } catch (error) {
     cacheHit = false
     room = await getRoomFromDb(id)
-    await setRoomCache(id, room)
+    setRoomCache(id, room)
   }
 
   if (user) {
@@ -248,7 +248,7 @@ export const getRoomsOfUser = async (user: User) => {
       .preload('users')
       .preload('requests')
 
-    await setUserRoomsCache(user.id, roomsDb)
+    setUserRoomsCache(user.id, roomsDb)
 
     rooms = roomsDb
     cacheHit = false

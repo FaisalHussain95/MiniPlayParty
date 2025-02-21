@@ -5,9 +5,7 @@ export const userRoomsCacheId = (id: number) => `user:${id}:rooms`
 export const roomCacheId = (id: string) => `room:${id}`
 
 const isRoomCacheInvalid = (room: Room) => {
-  if (typeof room.id !== 'string') {
-    return true
-  } else if (typeof room.name !== 'string') {
+  if (typeof room.id !== 'string' || typeof room.name !== 'string') {
     return true
   }
 

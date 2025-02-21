@@ -1,4 +1,5 @@
 import { assert } from '@japa/assert'
+import { openapi } from '@japa/openapi-assertions'
 import { apiClient } from '@japa/api-client'
 import app from '@adonisjs/core/services/app'
 import type { Config } from '@japa/runner/types'
@@ -15,10 +16,9 @@ import { authApiClient } from '@adonisjs/auth/plugins/api_client'
  * Learn more - https://japa.dev/docs/runner-config#plugins-optional
  */
 export const plugins: Config['plugins'] = [
-  assert({
-    openApi: {
-      schemas: [app.makePath('ressources/api_spec.yaml')],
-    },
+  assert(),
+  openapi({
+    schemas: [app.makePath('ressources/api_spec.yaml')],
   }),
   apiClient(),
   pluginAdonisJS(app),
