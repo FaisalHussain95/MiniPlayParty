@@ -2,7 +2,7 @@ import { test } from '@japa/runner'
 import User from '#models/user'
 import db from '@adonisjs/lucid/services/db'
 import redis from '@adonisjs/redis/services/main'
-import { userRoomsCacheId, roomCacheId } from '#services/room_cache_service'
+import { userRoomsCacheId } from '#services/room_cache_service'
 
 test.group('Room Test Suite', () => {
   const state = {
