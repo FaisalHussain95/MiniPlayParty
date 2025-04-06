@@ -13,11 +13,20 @@ spec:
       labels:
         app: miniplayparty-api
     spec:
+      initContainers:
+      - name: migration
+        image: ghcr.io/faisalhussain95/miniplayparty:main
+        command: ["node", "ace", "migration:run", "--force"]
+        envFrom:
+        - configMapRef:
+            name: miniplayparty-api-config
+        - secretRef:
+            name: miniplayparty-api-secret
       containers:
       - name: miniplayparty-api
-        image: your-docker-image:latest
+        image: ghcr.io/faisalhussain95/miniplayparty:main
         ports:
-        - containerPort: 3333
+        - containerPort: 3336
         envFrom:
         - configMapRef:
             name: miniplayparty-api-config

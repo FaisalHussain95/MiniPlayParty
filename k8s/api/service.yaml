@@ -9,5 +9,5 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 3333
+      targetPort: 3336
   type: LoadBalancer
