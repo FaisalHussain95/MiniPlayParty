@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: miniplayparty-api-deployment
+  namespace: miniplayparty-api-namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: miniplayparty-api
+  template:
+    metadata:
+      labels:
+        app: miniplayparty-api
+    spec:
+      containers:
+      - name: miniplayparty-api
+        image: your-docker-image:latest
+        ports:
+        - containerPort: 3333
+        envFrom:
+        - configMapRef:
+            name: miniplayparty-api-config
+        - secretRef:
+            name: miniplayparty-api-secret

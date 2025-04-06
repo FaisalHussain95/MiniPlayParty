@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: miniplayparty-api-config
+  namespace: miniplayparty-api-namespace
+data:
+  TZ: "UTC"
+  PORT: "3333"
+  HOST: "localhost"
+  LOG_LEVEL: "info"
+  DB_HOST: "postgres-service"
+  DB_PORT: "5432"
+  DB_USER: "miniplay"
+  DB_DATABASE: "miniplay"
+  DB_SSL: "false"
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  REDIS_USERNAME: "default"
