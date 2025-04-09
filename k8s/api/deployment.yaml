@@ -14,8 +14,21 @@ spec:
         app: miniplayparty-api
     spec:
       initContainers:
+      - name: wait-for-redis
+        image: busybox
+        command: ['sh', '-c', 'until nc -z -v redis-service 6379; do echo Waiting for Redis; sleep 2; done;']
+      - name: wait-for-postgres
+        image: busybox
+        command: ['sh', '-c', 'until nc -z -v postgres-service 5432; do echo Waiting for PostgreSQL; sleep 2; done;']
       - name: migration
         image: ghcr.io/faisalhussain95/miniplayparty:main
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
         command: ["node", "ace", "migration:run", "--force"]
         envFrom:
         - configMapRef:
@@ -24,6 +37,13 @@ spec:
             name: miniplayparty-api-secret
       containers:
       - name: miniplayparty-api
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
         image: ghcr.io/faisalhussain95/miniplayparty:main
         ports:
         - containerPort: 3336

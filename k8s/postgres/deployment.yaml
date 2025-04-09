@@ -28,3 +28,22 @@ spec:
               key: DB_PASSWORD
         - name: POSTGRES_DB
           value: "miniplay"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: postgres-storage
+        readinessProbe:
+          exec:
+            command: ["pg_isready", "-h", "localhost", "-U", "your-username"]
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc

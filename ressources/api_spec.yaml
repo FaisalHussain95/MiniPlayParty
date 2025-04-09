@@ -7,7 +7,7 @@ info:
     email: contact@faisalhussain.fr
 servers:
   - url: http://localhost:3333
-  - url: https://miniplay.realezio.com
+  - url: http://127.0.0.1:35409
 tags:
   - name: server
     description: Everything about the server
