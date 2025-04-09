@@ -1,12 +1,17 @@
-import redis from '@adonisjs/redis/services/main'
+import cache from '@adonisjs/cache/services/main'
 
 class CacheService {
   async exists(...keys: string[]) {
-    return await redis.exists(keys)
+    for (const key of keys) {
+      if (!(await cache.has({ key }))) {
+        return false
+      }
+    }
+    return true
   }
 
   async get(key: string) {
-    const value = await redis.get(key)
+    const value = await cache.get({ key })
 
     if (!value) {
       return Promise.reject('Value not found')
@@ -24,21 +29,21 @@ class CacheService {
     // Try to stringify JSON
     try {
       const stringifiedValue = JSON.stringify(value)
-      await redis.set(key, stringifiedValue)
+      await cache.set({ key, value: stringifiedValue, ttl: '1h' })
     } catch {
       // dont save if failed
       return Promise.reject('Failed to stringify value')
     }
   }
 
-  async del(...keys: string[]) {
-    await redis.del(keys)
+  async del(keys: string[]) {
+    await cache.deleteMany({ keys })
   }
 
   async flushdb() {
-    await redis.flushdb()
+    await cache.clear()
   }
 }
 
-const cache = new CacheService()
-export default cache
+const cacheService = new CacheService()
+export default cacheService

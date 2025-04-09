@@ -1,4 +1,4 @@
-import redis from '@adonisjs/redis/services/main'
+import cacheService from './cache_service.js'
 import Room from '#models/room'
 
 export const userRoomsCacheId = (id: number) => `user:${id}:rooms`
@@ -16,7 +16,7 @@ export const clearUserRoomsCache = async (ids?: number[]) => {
   try {
     if (!ids || ids.length === 0) return
 
-    await redis.del(ids.map(userRoomsCacheId))
+    await cacheService.del(ids.map(userRoomsCacheId))
   } catch (error) {
     console.error('Failed to flush user rooms cache', error)
   }
@@ -24,7 +24,7 @@ export const clearUserRoomsCache = async (ids?: number[]) => {
 
 export const setUserRoomsCache = async (id: number, rooms: any) => {
   try {
-    await redis.set(userRoomsCacheId(id), JSON.stringify(rooms))
+    await cacheService.set(userRoomsCacheId(id), rooms)
   } catch (error) {
     console.error('Failed to set user rooms cache', error)
   }
@@ -32,7 +32,7 @@ export const setUserRoomsCache = async (id: number, rooms: any) => {
 
 export const getUserRoomsCache = async (id: number) => {
   try {
-    const rooms = await redis.get(userRoomsCacheId(id))
+    const rooms = await cacheService.get(userRoomsCacheId(id))
 
     if (!rooms) {
       return Promise.reject('Rooms not found')
@@ -53,7 +53,7 @@ export const getUserRoomsCache = async (id: number) => {
 
 export const clearRoomCache = async (id: string) => {
   try {
-    await redis.del([roomCacheId(id)])
+    await cacheService.del([roomCacheId(id)])
   } catch (error) {
     console.error('Failed to flush room cache', error)
   }
@@ -61,7 +61,7 @@ export const clearRoomCache = async (id: string) => {
 
 export const getRoomCache = async (id: string) => {
   try {
-    const room = await redis.get(roomCacheId(id))
+    const room = await cacheService.get(roomCacheId(id))
 
     if (!room) {
       return Promise.reject('Room not found')
@@ -81,7 +81,7 @@ export const getRoomCache = async (id: string) => {
 
 export const setRoomCache = async (id: string, room: Room) => {
   try {
-    await redis.set(roomCacheId(id), JSON.stringify(room))
+    await cacheService.set(roomCacheId(id), room)
     await clearUserRoomsCache(room?.users?.map((u: any) => u.id))
   } catch (error) {
     console.error('Failed to set room cache', error)

@@ -1,7 +1,7 @@
 import { test } from '@japa/runner'
 import User from '#models/user'
 import db from '@adonisjs/lucid/services/db'
-import redis from '@adonisjs/redis/services/main'
+import cacheService from '#services/cache_service'
 import { userRoomsCacheId } from '#services/room_cache_service'
 
 test.group('Room Test Suite', () => {
@@ -297,7 +297,7 @@ test.group('Room Test Suite', () => {
     assert.isArray(response.body().rooms)
     assert.equal(response.body().rooms.length, 2)
 
-    await redis.set(userRoomsCacheId(user.id), 'TOTO')
+    await cacheService.set(userRoomsCacheId(user.id), 'TOTO')
   })
   test('Get all Rooms logged as User 1 from broken cache 1/3', async ({ client, assert }) => {
     const user = await User.findBy('id', state.user1Id)
@@ -325,7 +325,7 @@ test.group('Room Test Suite', () => {
     assert.isArray(response.body().rooms)
     assert.equal(response.body().rooms.length, 2)
 
-    await redis.set(userRoomsCacheId(user.id), '{}')
+    await cacheService.set(userRoomsCacheId(user.id), '{}')
   })
   test('Get all Rooms logged as User 1 from broken cache 2/3', async ({ client, assert }) => {
     const user = await User.findBy('id', state.user1Id)
@@ -353,7 +353,7 @@ test.group('Room Test Suite', () => {
     assert.isArray(response.body().rooms)
     assert.equal(response.body().rooms.length, 2)
 
-    await redis.set(userRoomsCacheId(user.id), '[{}, {}]')
+    await cacheService.set(userRoomsCacheId(user.id), '[{}, {}]')
   })
   test('Get all Rooms logged as User 1 from broken cache 3/3', async ({ client, assert }) => {
     const user = await User.findBy('id', state.user1Id)
