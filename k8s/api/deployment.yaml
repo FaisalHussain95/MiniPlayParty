@@ -47,6 +47,13 @@ spec:
         image: ghcr.io/faisalhussain95/miniplayparty:main
         ports:
         - containerPort: 3336
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3336
+            httpHeaders:
+            - name: Accept
+              value: application/json
         envFrom:
         - configMapRef:
             name: miniplayparty-api-config
