@@ -1,6 +1,13 @@
 import env from '#start/env'
 import { defineConfig } from '@adonisjs/lucid'
 
+const dbSLLCa = env.get('DB_SSL_CA')
+
+console.log('DB_SSL_CA raw', dbSLLCa)
+if (dbSLLCa) {
+  console.log('DB_SSL_CA =>', Buffer.from(dbSLLCa, 'base64').toString('ascii'))
+}
+
 const dbConfig = defineConfig({
   connection: 'postgres',
   connections: {
@@ -16,7 +23,7 @@ const dbConfig = defineConfig({
           env.get('DB_SSL') === 'true'
             ? {
                 rejectUnauthorized: true,
-                ...(env.get('DB_SSL_CA') ? { ca: env.get('DB_SSL_CA') } : {}),
+                ...(dbSLLCa ? { ca: Buffer.from(dbSLLCa, 'base64').toString('ascii') } : {}),
               }
             : false,
       },

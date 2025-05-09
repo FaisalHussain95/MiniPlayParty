@@ -7,6 +7,7 @@ info:
     email: contact@faisalhussain.fr
 servers:
   - url: http://localhost:3333
+  - url: http://localhost:3336
   - url: http://127.0.0.1:35409
 tags:
   - name: server
