@@ -1,0 +1,8 @@
+resources:
+  - deployment.yaml
+  - service.yaml
+  - hpa.yaml
+
+images:
+  - name: ghcr.io/faisalhussain95/miniplayparty
+    newTag: latest  # will be overridden by GitHub Actions with digest

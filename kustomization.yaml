@@ -1,0 +1,6 @@
+resources:
+- k8s/configmap.yaml
+- k8s/secret.yaml
+- k8s/api
+- k8s/postgres
+- k8s/redis

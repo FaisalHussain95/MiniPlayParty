@@ -1,0 +1,46 @@
+name: Deploy API to Kubernetes
+
+on:
+  workflow_run:
+    workflows: ["Create and publish API Docker image"]
+    types:
+      - completed
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: v1.29.0
+
+      - name: Set up Kustomize
+        uses: imranismail/setup-kustomize@v2
+
+      - name: Set up kubeconfig
+        run: echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+
+      - name: Set digest from previous workflow (build image)
+        run: |
+          API_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          echo "FULL_IMAGE=$API_IMAGE@${{ github.event.workflow_run.head_sha }}" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Patch Kustomize API image
+        run: |
+          cd k8s/api
+          kustomize edit set image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}=${{ env.FULL_IMAGE }}
+          cat kustomization.yaml
+
+      - name: Deploy API with kubectl
+        run: kubectl apply -k .

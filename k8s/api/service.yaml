@@ -2,7 +2,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: miniplayparty-api-service
-  namespace: miniplayparty-api-namespace
 spec:
   selector:
     app: miniplayparty-api
