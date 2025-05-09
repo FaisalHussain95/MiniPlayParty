@@ -3,11 +3,6 @@ import { defineConfig } from '@adonisjs/lucid'
 
 const dbSLLCa = env.get('DB_SSL_CA')
 
-console.log('DB_SSL_CA raw', dbSLLCa)
-if (dbSLLCa) {
-  console.log('DB_SSL_CA =>', Buffer.from(dbSLLCa, 'base64').toString('ascii'))
-}
-
 const dbConfig = defineConfig({
   connection: 'postgres',
   connections: {
