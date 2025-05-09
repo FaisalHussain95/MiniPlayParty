@@ -31,4 +31,4 @@ ENV HOST=0.0.0.0
 COPY --from=production-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app
 EXPOSE 3336
-CMD ["node", "./bin/server.js"]
+CMD ["sh", "-c", "node ace migration:run --force && node ./bin/server.js"]
