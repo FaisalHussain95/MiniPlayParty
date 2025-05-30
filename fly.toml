@@ -21,3 +21,13 @@ primary_region = 'cdg'
   cpu_kind = 'shared'
   cpus = 1
   memory_mb = 256
+
+[checks]
+  [checks.http_status]
+    grace_period = "30s"
+    interval = "1h"
+    method = "get"
+    path = "/"
+    port = 3336
+    timeout = "30s"
+    type = "http"
